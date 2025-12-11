@@ -242,13 +242,19 @@ void load_css(void) {
         ".styled-entry { background: #ffffff; border: 1px solid #aaa; border-radius: 4px; padding: 10px; color: #000; }"
         ".styled-entry:focus { border: 2px solid #2962ff; }"
         
-        /* Start Button (Blue) */
-        "#start_btn { background-color: #1a237e; color: white; font-weight: bold; border-radius: 5px; padding: 10px; margin-top: 15px; }"
-        "#start_btn:hover { background-color: #283593; }"
+       /* --- FIXED START BUTTON (Blue) --- */
+        /* Added :focus and :active, and background-image: none */
+        "#start_btn { background-color: #1a237e; background-image: none; color: white; font-weight: bold; border-radius: 5px; padding: 10px; margin-top: 15px; }"
+        "#start_btn:hover { background-color: #2a3ed1ff; }"
+        "#start_btn:active { background-color: #1123ebff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }"
+        "#start_btn:focus { border: 2px solid #534bae; }"
 
-        /* Exit Button (Red) - Increased Font & Size */
-        ".btn-exit { background-color: #d50000; color: white; font-weight: bold; font-size: 16px; border-radius: 5px; padding: 10px; margin-top: 15px;}"
+        /* --- FIXED EXIT BUTTON (Red) --- */
+        /* Added :focus and :active, and background-image: none */
+        ".btn-exit { background-color: #d50000; background-image: none; color: white; font-weight: bold; font-size: 16px; border-radius: 5px; padding: 10px; margin-top: 15px; }"
         ".btn-exit:hover { background-color: #b71c1c; }"
+        ".btn-exit:active { background-color: #d50000; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }"
+        ".btn-exit:focus { border: 2px solid #ff5131; }"
 
         /* Choice Buttons (Rock/Paper/Scissors) */
         ".choice-btn { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; box-shadow: 0 2px 2px rgba(0,0,0,0.05); }"
