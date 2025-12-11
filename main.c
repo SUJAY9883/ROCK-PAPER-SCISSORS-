@@ -18,6 +18,7 @@
 
 /* --- Data Structure --- */
 typedef struct {
+    GtkWidget *window; 
     int current_round;
     int player_score;
     int computer_score;
@@ -210,6 +211,14 @@ void on_scissors_clicked(GtkButton *btn, gpointer user_data) { process_round((Ap
 void on_next_round_clicked(GtkButton *btn, gpointer user_data) { start_next_round_ui((AppData*)user_data); }
 void on_play_again_clicked(GtkButton *btn, gpointer user_data) { start_new_game((AppData*)user_data); }
 
+/* Exit Callback */
+void on_exit_clicked(GtkButton *btn, gpointer user_data) {
+    AppData *data = (AppData *)user_data;
+    GtkWindow *window = GTK_WINDOW(data->window);
+    GtkApplication *app = gtk_window_get_application(window);
+    g_application_quit(G_APPLICATION(app)); /* Added cast here */
+}
+
 /* --- CSS Styling --- */
 void load_css(void) {
     GtkCssProvider *provider = gtk_css_provider_new();
@@ -233,9 +242,13 @@ void load_css(void) {
         ".styled-entry { background: #ffffff; border: 1px solid #aaa; border-radius: 4px; padding: 10px; color: #000; }"
         ".styled-entry:focus { border: 2px solid #2962ff; }"
         
-        /* Start Button */
+        /* Start Button (Blue) */
         "#start_btn { background-color: #1a237e; color: white; font-weight: bold; border-radius: 5px; padding: 10px; margin-top: 15px; }"
         "#start_btn:hover { background-color: #283593; }"
+
+        /* Exit Button (Red) - Increased Font & Size */
+        ".btn-exit { background-color: #d50000; color: white; font-weight: bold; font-size: 16px; border-radius: 5px; padding: 10px; margin-top: 15px;}"
+        ".btn-exit:hover { background-color: #b71c1c; }"
 
         /* Choice Buttons (Rock/Paper/Scissors) */
         ".choice-btn { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; box-shadow: 0 2px 2px rgba(0,0,0,0.05); }"
@@ -261,8 +274,6 @@ void load_css(void) {
 
 /* --- UI Construction --- */
 
-/* * THIS IS THE MISSING FUNCTION THAT CAUSED THE ERROR 
- */
 GtkWidget* create_choice_button(const char *emoji, const char *label_text, GCallback callback, AppData *data) {
     GtkWidget *btn = gtk_button_new();
     gtk_widget_add_css_class(btn, "choice-btn");
@@ -400,7 +411,7 @@ GtkWidget* create_game_screen(AppData *data) {
     return center_box;
 }
 
-/* 3. Result Screen */
+/* 3. Result Screen (MODIFIED) */
 GtkWidget* create_result_screen(AppData *data) {
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
     gtk_widget_set_valign(vbox, GTK_ALIGN_CENTER);
@@ -425,10 +436,28 @@ GtkWidget* create_result_screen(AppData *data) {
     gtk_widget_set_halign(data->final_score_label, GTK_ALIGN_CENTER);
     gtk_box_append(GTK_BOX(card), data->final_score_label);
 
-    data->play_again_btn = gtk_button_new_with_label("Play Again");
+    /* --- SIDE BY SIDE BUTTONS CONTAINER --- */
+    GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
+    gtk_widget_set_margin_top(button_box, 15);
+
+    /* 1. Play Again Button */
+    data->play_again_btn = gtk_button_new_with_label("Rematch?");
     gtk_widget_set_name(data->play_again_btn, "start_btn");
+    gtk_widget_set_hexpand(data->play_again_btn, TRUE);
     g_signal_connect(data->play_again_btn, "clicked", G_CALLBACK(on_play_again_clicked), data);
-    gtk_box_append(GTK_BOX(card), data->play_again_btn);
+    gtk_box_append(GTK_BOX(button_box), data->play_again_btn);
+
+    /* 2. Exit Button */
+    GtkWidget *exit_btn = gtk_button_new_with_label("End Battle");
+    gtk_widget_add_css_class(exit_btn, "btn-exit");
+    gtk_widget_set_hexpand(exit_btn, TRUE);
+    g_signal_connect(exit_btn, "clicked", G_CALLBACK(on_exit_clicked), data);
+    gtk_box_append(GTK_BOX(button_box), exit_btn);
+
+    /* Add the button box to the card */
+    gtk_box_append(GTK_BOX(card), button_box);
+    /* -------------------------------------- */
 
     GtkWidget *credit_lbl = gtk_label_new("Developed by SUJAY PAUL");
     gtk_widget_add_css_class(credit_lbl, "footer-credit");
@@ -445,6 +474,9 @@ void activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *window = gtk_application_window_new(app);
     gtk_widget_set_size_request(window, 800, 600);
     
+    /* Store the window in AppData so the Exit button can use it */
+    data->window = window;
+
     GtkWidget *header = gtk_header_bar_new();
     gtk_window_set_titlebar(GTK_WINDOW(window), header);
     gtk_window_set_title(GTK_WINDOW(window), "Epic Rock Paper Scissors Battle");
